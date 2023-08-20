@@ -1,0 +1,280 @@
+#! /usr/bin/env python3
+
+from flpianoroll import *
+
+from constants import *
+from functions import *
+from models import *
+from utilities_fl import *
+from utilities_theory import *
+
+
+fl = Project()
+
+
+note = "C4"
+
+""" utilities_theory """
+# is_valid_note(name: str)
+# has_octave(name: str)
+# has_accidental(name: str)
+# extract_octave(name: str)
+# get_chord_root_from_name(name: str)
+# get_interval(note_a: str, note_b: str)
+# get_note_by_interval(root_note: str, interval: str)
+
+
+""" utilities_fl """
+# log(message: str)
+# get_time_in_ticks(measure: int|None, beat: int|None, ppq: int|None)
+# write_note(name: str, measure: int|None, beat: int|None, ppq: int|None, length: int|None)
+# parse_chord_symbol(symbol: str)
+# validate_chord_quality(quality: str)
+# write_chord(root: str, quality: str, voicing: int|list<int>|None, flat: list<int>|None,
+#   sharp: list<int>|None, sus: list<int>|None, added: list<int>|None, bass: str|None,
+#   measure: int|None, beat: int|None, ppq: int|None, length: int|None)
+# write_chord_symbol(symbol: str, measure: int|None, beat: int|None, ppq: int|None,
+#   length: int|None)
+
+
+score.clear(True)
+
+fl.write_chord_symbol('bbmaj11flat5add12sus4flat2add9/Ab')
+
+
+#
+# """""""""""""""
+#
+# CONSTANTS
+
+#
+# """""""""""""""
+#
+#
+# """
+# Generate note to MIDI number mapping
+# """
+#
+# notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+# modes = ["ionian", "dorian", "phrygian", "lydian", "mixolydian", "aeolian", "locrian"]
+# scale = [2, 2, 1, 2, 2, 2, 1]
+# qualities = ["Major", "Major", "minor", "Major", "Major", "Major", "diminished"]
+# chord_degrees = ["root", "second", "third", "fourth", "fifth", "sixth", "seventh", "octave", "ninth", "tenth", "eleventh"]
+#
+#
+# note_map = {}
+# """
+# {
+#     "A4": {
+#         "number": 69,
+#         "name": "A",
+#     }
+# }
+# """
+#
+# mode_map = {}
+# """
+# {
+#     "ionian": {
+#         "intervals": [2, 2, 1, 2, 2, 2, 1],
+#         "qualities": ["Major", "Major", "minor", "Major", "Major", "Major", "diminished"]
+#     }
+# }
+# """
+#
+# populate note map
+# midi_number_counter = 21
+# scale_counter = 0
+# while scale_counter != 9:
+#     for i in notes:
+#         if midi_number_counter < 128:
+#             if i == "C":
+#                 scale_counter += 1
+#             note_map[f"{i}{scale_counter}"] = {
+#                 "number": midi_number_counter,
+#                 "name": i,
+#             }
+#             midi_number_counter += 1
+#
+# # populate mode map
+# for i in range(len(modes)):
+#     mode_distribution = [interval for interval in scale[i:]]
+#     mode_distribution.extend(scale[:i])
+#     quality_distribution = [quality for quality in qualities[i:]]
+#     quality_distribution.extend(qualities[:i])
+#     mode_map[modes[i]] = {
+#         "intervals": mode_distribution[:len(scale)],
+#         "qualities": quality_distribution[:len(qualities)]
+#     }
+#
+#
+# """""""""""""""
+#
+# FUNCTIONS
+#
+# """""""""""""""
+#
+#
+# def get_scale(root, mode_name):
+#     root = root.upper() if root[-1].isdigit() else f"{root.upper()}4"
+#     root_note = root if not root[-1].isdigit() else root[:-1]
+#     root_octave = int(root[-1])
+#     root_index = list(note_map.keys()).index(root if root[-1].isdigit() else f"{root}4")
+#
+#     current_note = root
+#     safety_counter = 0
+#
+#     log(f"Starting note: {current_note}")
+#
+#     while current_note != f"C{str(root_octave + 1)}" and safety_counter < 30:
+#         log(f"Current note: {current_note} -- C{str(root_octave + 1)}")
+#         next_note_index = (list(note_map.keys()).index(current_note) + 1)
+#         current_note = list(note_map.keys())[next_note_index]
+#         safety_counter += 1
+#
+#     next_octave_index = list(note_map.keys()).index(current_note)
+#
+#     log(f"Next octave index: {next_octave_index}")
+#
+#     # while note_map[list(note_map.keys())[root_index + 1]] == root_octave
+#
+#     if mode_name.lower() == "major":
+#         mode = mode_map["ionian"]
+#     elif mode_name.lower() == "minor":
+#         mode = mode_map["aeolian"]
+#     else:
+#         mode = mode_map[mode_name.lower()]
+#
+#     scale = []
+#
+#     interval_accumulator = 0
+#     note_octave = root_octave
+#
+#     for i in range(len(mode["intervals"])):
+#         note_index = root_index + interval_accumulator
+#         note_octave = root_octave + 1 if root[0].upper() != "C" and note_map[list(
+#             note_map.keys())[root_index]] == "C" else note_octave
+#         log(f"note index: {note_index} --- note octave: {note_octave}")
+#         scale.append(f"{notes[note_index % len(notes)]}{str(note_octave)}")
+#         interval_accumulator += mode["intervals"][i]
+#
+#     return scale
+#
+#
+#
+#
+# def create_note(name, time, length=score.PPQ, color=0, velocity=0.8):
+#     note = Note()
+#     if not name[-1].isdigit():
+#         name = f"{name}4"
+#
+#     note.number = note_map[name.upper()]["number"]
+#     note.time = int(time)
+#     note.length = length
+#     note.color = int(color)
+#     note.velocity = velocity
+#
+#     return note
+#
+#
+# # class Chord:
+# #     def __init__(self, root, third, fifth, degree, quality):
+# #         self.root = root
+# #         self.third = third
+# #         self.fifth = fifth
+# #         self.degree = degree
+# #         self.quality = quality
+#
+#
+# class Chord:
+#     def __init__(self, root, mode):
+#         self.root = f"{root.upper()}4" if all([str(octave) not in root for octave in range(9)]) else root.upper()
+#         self.root_octave = self.root[-1:]
+#         self.mode = mode.lower()
+#         for degree in range(len(chord_degrees[1:])):
+#             self.__dict__.update({
+#                 chord_degrees[1:][degree]: f"""{notes[
+#                     (notes.index(root.upper()) + sum(mode_map[self.mode]["intervals"][:degree + 1])) % len(notes)
+#                 ]}4"""
+#             })
+#
+#
+# class MajorChord(Chord):
+#     def __init__(self, root):
+#         super().__init__(root, "ionian")
+#
+#
+# class MinorChord(Chord):
+#     def __init__(self, root):
+#         super().__init__(root, "aeolian")
+#
+#
+# def write_chord(name, time):
+#     note = name[:1] if (len(name) > 1 and (name[1] == "#")) else name[0]
+#
+#     if len(name) > 1 and name[1] in ["M", "m", "d", "a"]:
+#         quality = name[1]
+#     elif "maj" in name.lower():
+#         quality = "M"
+#     elif "min" in name.lower():
+#         quality = "m"
+#     elif "dim" in name.lower():
+#         quality = "d"
+#     elif "aug" in name.lower():
+#         quality = "a"
+#     else:
+#         if len(name) == 1 or (len(name) == 2 and name[1] == "#"):
+#             quality = "M"
+#         else:
+#             log(name)
+#             raise Exception("An unknown exception occurred determining the quality of the chord.")
+#
+#     quality_map = {
+#         "M": MajorChord,
+#         "m": MinorChord,
+#     }
+#
+#     chord = quality_map[quality](note)
+#
+#     root_note = Note()
+#     root_note.number = note_map[chord.root]["number"]
+#     root_note.time = time
+#     root_note.length = score.PPQ
+#
+#     third_note = Note()
+#     third_note.number = note_map[chord.third]["number"]
+#     third_note.time = time
+#     third_note.length = score.PPQ
+#
+#     fifth_note = Note()
+#     fifth_note.number = note_map[chord.fifth]["number"]
+#     fifth_note.time = time
+#     fifth_note.length = score.PPQ
+#
+#     score.addNote(root_note)
+#     score.addNote(third_note)
+#     score.addNote(fifth_note)
+#
+#
+#
+#
+# """""""""""""""
+#
+# MAIN
+#
+# """""""""""""""
+#
+#
+# def main():
+#     # for i in range(8):
+#     #     chord = f"{notes[i]}{qualities[i]}"
+#     #     log(f"Chord: {chord}")
+#     #     write_chord(chord, get_time(i))
+#
+#     scale = get_scale("A", "major")
+#
+#     for i in range(8):
+#         note = create_note(scale[i % len(scale)], 96 * i, 96)
+#         score.addNote(note)
+#
+# main()
